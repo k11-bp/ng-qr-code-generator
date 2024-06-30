@@ -1,0 +1,49 @@
+<table>
+  <tr>
+    <th colspan="2"><h1>K11 QR code generator</h1><span id="remark">by K11 IT BP Team</span></th>
+  </tr>
+  <tr>
+    <td>Content</td>
+    <td><input type="text" name="qr-code-content" [(ngModel)]="qr_code_content" (ngModelChange)="inputChange()"/></td>
+  </tr>
+  <tr>
+    <td>Canvas size</td>
+    <td>
+      <select name="qr_code_size" [(ngModel)]="canvasDimension">
+        <option value="100">100px</option>
+        <option value="200">200px</option>
+        <option value="400">400px</option>
+        <option value="500" selected="selected">500px</option>
+        <option value="800">800px</option>
+        <option value="1000">1000px</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td>Icon</td>
+    <td><input type="file" name="qr-code-icon" (change)="onFileSelected($event)"/></td>
+  </tr>
+  <tr>
+    <td>QR code color</td>
+    <td><input type="color" name="qr-code-color" (change)="onColorChanged($event)" [(ngModel)]="qr_code_color"/></td>
+  </tr>
+  <tr>
+    <td>Border color</td>
+    <td><input type="color" name="qr-code-color" (change)="onBorderColorChanged($event)" [(ngModel)]="icon_image_border_color"/></td>
+  </tr>
+  <tr>
+    <td>Border size: {{icon_image_border_size}}</td>
+    <td><input type="range" min="0" max="15" (change)="onBorderChanged($event)" [(ngModel)]="icon_image_border_size"/></td>
+  </tr>
+  <tr>
+    <td>Dimension</td>
+    <td>{{dimension??"0"}} x {{dimension??"0"}}</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><button (click)="download($event)">Download</button></td>
+  </tr>
+  <tr>
+    <td colspan="2"><canvas #canvas width="{{canvasDimension}}" height="{{canvasDimension}}" style="border:1px solid #000000;"></canvas></td>
+  </tr>
+</table>

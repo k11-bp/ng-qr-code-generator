@@ -20,6 +20,16 @@
     </td>
   </tr>
   <tr>
+    <td>Style</td>
+    <td>
+      <select name="qr_style" [(ngModel)]="qr_style" (ngModelChange)="inputChange()">
+        <option value="1" selected="selected">Normal</option>
+        <option value="2">Style 1</option>
+        <option value="3">Style 2</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
     <td>Icon</td>
     <td><input type="file" name="qr-code-icon" (change)="onFileSelected($event)"/></td>
   </tr>
@@ -34,6 +44,10 @@
   <tr>
     <td>Border size: {{icon_image_border_size}}</td>
     <td><input type="range" min="0" max="15" (change)="onBorderChanged($event)" [(ngModel)]="icon_image_border_size"/></td>
+  </tr>
+  <tr>
+    <td>Error rate: {{error_rate}}</td>
+    <td><input type="range" min="1" max="40" (change)="onBorderChanged($event)" [(ngModel)]="error_rate"/></td>
   </tr>
   <tr>
     <td>Dimension</td>

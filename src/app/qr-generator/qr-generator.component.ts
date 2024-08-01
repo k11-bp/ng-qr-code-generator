@@ -2,11 +2,12 @@ import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/
 import {qrcodegen} from "../qrcodegen";
 import {FormsModule} from "@angular/forms";
 import QrCode = qrcodegen.QrCode;
+import {NgStyle} from "@angular/common";
 
 @Component({
   selector: 'app-qr-generator',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NgStyle],
   templateUrl: './qr-generator.component.html',
   styleUrl: './qr-generator.component.css'
 })
@@ -23,6 +24,8 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
   icon_image_border_color: string|undefined;
   qr_style: string|undefined = "1";
   error_rate: number|undefined = 5;
+  colorMode: boolean|undefined = true;
+  ecc=qrcodegen.QrCode.Ecc.LOW;
   ngOnInit(): void {
   }
 
@@ -33,6 +36,14 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
     }
   }
 
+  clearFile() {
+    var input = document.getElementsByName("qr-code-icon").item(0) as HTMLInputElement;
+    input.value = "";
+    this.img = undefined;
+    this.ecc = qrcodegen.QrCode.Ecc.LOW;
+    this.inputChange();
+  }
+
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -41,6 +52,7 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
       reader.onload = (e) => {
         this.img = new Image();
         this.img.onload = () => {
+          this.ecc = qrcodegen.QrCode.Ecc.HIGH;
           this.inputChange();
         };
         this.img.src = e.target!.result as string;
@@ -50,9 +62,14 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
     }
   }
 
+  switchColorMode(){
+    this.colorMode = !this.colorMode;
+  }
+
   getQrCodeCorner(qrCode: QrCode){
     var continuesSquares = [
       {
+        type: "border",
         p: [
           [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
           [0,1],                              [6,1],
@@ -68,6 +85,7 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
         c_br: [6,6],
       },
       {
+        type: "core",
         p: [
           [2,2],[3,2],[4,2],
           [2,3],[3,3],[4,3],
@@ -77,8 +95,10 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
         c_tr: [4,2],
         c_bl: [2,4],
         c_br: [4,4],
+        cc:[3,3]
       },
       {
+        type: "border",
         p: [
           [qrCode.size-7,0],[qrCode.size-6,0],[qrCode.size-5,0],[qrCode.size-4,0],[qrCode.size-3,0],[qrCode.size-2,0],[qrCode.size-1,0],
           [qrCode.size-7,1],                                                                                          [qrCode.size-1,1],
@@ -94,6 +114,7 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
         c_br: [qrCode.size-1,6],
       },
       {
+        type: "core",
         p: [
           [qrCode.size-5,2],[qrCode.size-4,2],[qrCode.size-3,2],
           [qrCode.size-5,3],[qrCode.size-4,3],[qrCode.size-3,3],
@@ -103,8 +124,10 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
         c_tr: [qrCode.size-3,2],
         c_bl: [qrCode.size-5,4],
         c_br: [qrCode.size-3,4],
+        cc:[qrCode.size-4,3]
       },
       {
+        type: "border",
         p: [
           [0,qrCode.size-7],[1,qrCode.size-7],[2,qrCode.size-7],[3,qrCode.size-7],[4,qrCode.size-7],[5,qrCode.size-7],[6,qrCode.size-7],
           [0,qrCode.size-6],                                                                                          [6,qrCode.size-6],
@@ -120,6 +143,7 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
         c_br: [6,qrCode.size-1],
       },
       {
+        type: "core",
         p: [
           [2,qrCode.size-5],[3,qrCode.size-5],[4,qrCode.size-5],
           [2,qrCode.size-4],[3,qrCode.size-4],[4,qrCode.size-4],
@@ -129,6 +153,7 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
         c_tr: [4,qrCode.size-5],
         c_bl: [2,qrCode.size-3],
         c_br: [4,qrCode.size-3],
+        cc:[3,qrCode.size-4]
       }
     ];
     return continuesSquares;
@@ -139,7 +164,7 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
     let qr_offset: number = 0;
     if(this.qr_code_content) {
       let segs: Array<qrcodegen.QrSegment> = qrcodegen.QrSegment.makeSegments(this.qr_code_content)
-      qrCode = qrcodegen.QrCode.encodeSegments(segs,qrcodegen.QrCode.Ecc.HIGH, this.error_rate,40,-1,true)
+      qrCode = qrcodegen.QrCode.encodeSegments(segs,this.ecc, this.error_rate,40,-1,true)
       this.dimension = qrCode.size
       this.square_size = Math.floor(this.canvasDimension/this.dimension)//Math.floor(this.canvasDimension/qrCode.size)
       qr_offset = Math.ceil((this.canvasDimension - (this.square_size*this.dimension))/2)
@@ -173,6 +198,32 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
                   v.c_bl[0]+","+v.c_bl[1],
                   v.c_br[0]+","+v.c_br[1]
                 ] }).flat())
+            }else if(this.qr_style==="4"){
+              this.drawRoundDot(qrCode,i,ii,qr_offset,
+                continuesSquares.filter((v)=>{
+                  return v.type == "border"
+                }).map((v,i,a)=>{
+                  return v.p
+                }).flat().map((v,i)=>{ return v[0]+","+v[1] }),
+                continuesSquares.filter((v)=>{
+                  return v.type == "border"
+                }).map((v,i)=>{ return [
+                  v.c_tl[0]+","+v.c_tl[1],
+                  v.c_tr[0]+","+v.c_tr[1],
+                  v.c_bl[0]+","+v.c_bl[1],
+                  v.c_br[0]+","+v.c_br[1]
+                ] }).flat())
+              continuesSquares.filter((v)=>{
+                return v.type == "core"
+              }).forEach((v,i)=>{
+                if(v?.cc?.length===2&&this.ctx) {
+                  this.ctx.clearRect((v.c_tl[0])*this.square_size+qr_offset,(v.c_tl[1])*this.square_size+qr_offset,this.square_size*3,this.square_size*3)
+                  this.ctx.beginPath();
+                  this.ctx.arc((v.cc[0])*this.square_size+qr_offset+this.square_size/2,(v.cc[1])*this.square_size+qr_offset+this.square_size/2, this.square_size/2 * 3, 0, 2*Math.PI)
+                  this.ctx.fillStyle = this.qr_code_color?this.qr_code_color:"black";
+                  this.ctx.fill();
+                }
+              })
             }else{
               this.drawSquare(qrCode,i,ii,qr_offset);
             }
@@ -182,6 +233,11 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
 
       if(this.qr_style==="3")
         this.drawRoundDotCorner(continuesSquares,qr_offset)
+      else if(this.qr_style==="4"){
+        this.drawRoundDotCorner(continuesSquares.filter((v)=>{
+          return v.type == "border"
+        }),qr_offset)
+      }
 
       //draw the icon
       if(this.dimension){
@@ -223,6 +279,10 @@ export class QrGeneratorComponent implements OnInit, AfterViewInit{
     if(qrCode.getModule(i, ii + 1)){
       this.ctx.fillRect(i*this.square_size+qr_offset, ii*this.square_size+qr_offset+this.square_size/2, Math.ceil(this.square_size), Math.ceil(this.square_size));
     }
+  }
+
+  drawCircle(qrCode: qrcodegen.QrCode,x: number, y: number, radius: number) {
+
   }
 
   drawRoundDot(qrCode: qrcodegen.QrCode, i: number,ii: number, qr_offset: number, cornerPointArrays:string[],cornerCornerPointArrays:string[]){

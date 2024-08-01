@@ -1,15 +1,15 @@
 <table>
   <tr>
-    <th colspan="2"><h1>K11 QR code generator</h1><span id="remark">by K11 IT BP Team</span></th>
+    <th colspan="3"><h1>K11 QR code generator</h1><span id="remark">by K11 IT BP Team</span></th>
   </tr>
   <tr>
     <td>Content</td>
-    <td><input type="text" name="qr-code-content" [(ngModel)]="qr_code_content" (ngModelChange)="inputChange()"/></td>
+    <td colspan="2"><input type="text" style="width: calc(100% - 8px);" name="qr-code-content" [(ngModel)]="qr_code_content" (ngModelChange)="inputChange()"/></td>
   </tr>
   <tr>
     <td>Canvas size</td>
-    <td>
-      <select name="qr_code_size" [(ngModel)]="canvasDimension">
+    <td colspan="2">
+      <select name="qr_code_size" [(ngModel)]="canvasDimension" style="width: 100%;">
         <option value="100">100px</option>
         <option value="200">200px</option>
         <option value="400">400px</option>
@@ -21,43 +21,51 @@
   </tr>
   <tr>
     <td>Style</td>
-    <td>
-      <select name="qr_style" [(ngModel)]="qr_style" (ngModelChange)="inputChange()">
+    <td colspan="2">
+      <select name="qr_style" [(ngModel)]="qr_style" (ngModelChange)="inputChange()" style="width: 100%;">
         <option value="1" selected="selected">Normal</option>
         <option value="2">Style 1</option>
         <option value="3">Style 2</option>
+        <option value="4">Style 3</option>
       </select>
     </td>
   </tr>
   <tr>
     <td>Icon</td>
     <td><input type="file" name="qr-code-icon" (change)="onFileSelected($event)"/></td>
+    <td><button (click)="clearFile()">Clear</button></td>
   </tr>
   <tr>
     <td>QR code color</td>
     <td><input type="color" name="qr-code-color" (change)="onColorChanged($event)" [(ngModel)]="qr_code_color"/></td>
+    <td><button (click)="switchColorMode()">Switch background color(Light/Dark mode)</button></td>
   </tr>
   <tr>
     <td>Border color</td>
     <td><input type="color" name="qr-code-color" (change)="onBorderColorChanged($event)" [(ngModel)]="icon_image_border_color"/></td>
+    <td></td>
   </tr>
   <tr>
     <td>Border size: {{icon_image_border_size}}</td>
     <td><input type="range" min="0" max="15" (change)="onBorderChanged($event)" [(ngModel)]="icon_image_border_size"/></td>
+    <td></td>
   </tr>
-  <tr>
-    <td>Error rate: {{error_rate}}</td>
-    <td><input type="range" min="1" max="40" (change)="onBorderChanged($event)" [(ngModel)]="error_rate"/></td>
-  </tr>
+<!--  <tr>-->
+<!--    <td>Error rate: {{error_rate}}</td>-->
+<!--    <td><input type="range" min="1" max="40" (change)="onBorderChanged($event)" [(ngModel)]="error_rate"/></td>-->
+<!--    <td></td>-->
+<!--  </tr>-->
   <tr>
     <td>Dimension</td>
     <td>{{dimension??"0"}} x {{dimension??"0"}}</td>
+    <td></td>
   </tr>
   <tr>
     <td></td>
     <td><button (click)="download($event)">Download</button></td>
+    <td></td>
   </tr>
   <tr>
-    <td colspan="2"><canvas #canvas width="{{canvasDimension}}" height="{{canvasDimension}}" style="border:1px solid #000000;"></canvas></td>
+    <td colspan="3" style="text-align: center;"><canvas #canvas width="{{canvasDimension}}" height="{{canvasDimension}}" style="border:1px solid #000000;" [ngStyle]="{'background-color': colorMode?'white':'black'}"></canvas></td>
   </tr>
 </table>
